@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Actor Spec Schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "components": {
+      "type": "object",
+      "properties": {
+        "transform": {
+          "type": "object",
+          "properties": {
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "scale": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "rotation": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "position",
+            "scale",
+            "rotation"
+          ]
+        },
+        "sprite": {
+          "type": "object",
+          "properties": {
+            "texture": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "texture"
+          ]
+        },
+        "script": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "version",
+    "name",
+    "tags",
+    "components"
+  ]
+}
