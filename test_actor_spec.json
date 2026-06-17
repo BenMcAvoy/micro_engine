@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "name": "test_actor",
+
+  "enabled": true,
+  "tags": ["test"],
+
+  "components": {
+    "transform": {
+      "position": [0, 0],
+      "scale": [1, 1],
+      "rotation": 0
+    },
+
+    "sprite": {
+      "texture": "assets/actor.png"
+    },
+
+    "script": {
+      "path": "scripts/actor.lua"
+    }
+  }
+}
