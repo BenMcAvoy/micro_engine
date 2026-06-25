@@ -1,33 +1,50 @@
-#pragma once
-
 #include "micro/model/components/lua.h"
-#include "micro/engine.h"
+#include "micro/engine_impl.h"
 
-#include <sol/sol.hpp>
-
-#include <cstddef>
-#include <print>
-
-namespace micro
-{
-    struct engine::impl
-    {
-        sol::state sol_state;
-    };
-}
+#include <stdexcept>
 
 namespace micro::components
 {
-    lua::lua(assets::lua &lua_asset)
-        : lua_asset(lua_asset)
+    lua::lua(assets::lua &asset_)
+        : asset_(asset_)
     {
-        auto p = micro::engine::get_instance()->impl_->sol_state.create_table();
-        std::uintptr_t ptr = reinterpret_cast<std::uintptr_t>(&sol_table_);
+        sol::state &state = engine_lua_state();
 
-        sol::table *data = reinterpret_cast<sol::table *>(this->sol_table_);
-        memcpy(data, &p, sizeof(sol::table));
-        sol::table &t = *data;
+        table_ = state.create_table();
 
-        t["source"] = lua_asset.source;
+        table_["source"] = asset_.source;
+        table_["path"] = asset_.path;
+
+        state["script"] = table_;
+
+        state.script("print(script.path)");
+    }
+
+    lua::lua(std::string_view lua_asset_name)
+        : lua(get_asset_by_name(lua_asset_name))
+    {
+    }
+
+    sol::state &lua::engine_lua_state() const
+    {
+        return detail::engine_access::lua_state(micro::engine::get_instance());
+    }
+
+    helpers::heterogeneous_string_unordered_map<asset> &lua::engine_assets()
+    {
+        return detail::engine_access::of(micro::engine::get_instance()).assets;
+    }
+
+    assets::lua &lua::get_asset_by_name(std::string_view lua_asset_name)
+    {
+        auto &assets_map = engine_assets();
+
+        auto it = assets_map.find(lua_asset_name);
+        if (it == assets_map.end())
+        {
+            throw std::runtime_error("Lua asset not found: " + std::string(lua_asset_name));
+        }
+
+        return std::get<assets::lua>(it->second);
     }
 }

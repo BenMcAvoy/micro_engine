@@ -1,27 +1,19 @@
 #include "micro/engine.h"
-
-#include <sol/sol.hpp>
+#include "micro/engine_impl.h"
 
 #include <iostream>
 
 namespace micro
 {
-    struct engine::impl
-    {
-        sol::state sol_state;
-    };
-
     void engine::run()
     {
         window_.run();
     }
 
     engine::engine(std::string_view window_title, vec2 window_size)
-        : window_(window_title, window_size)
+        : window_(window_title, window_size), impl_(new impl())
     {
         std::cout << "Initializing engine..." << std::endl;
-
-        impl_ = new impl();
 
         auto &lua = impl_->sol_state;
 
@@ -47,12 +39,12 @@ namespace micro
     void engine::test()
     {
         auto lua_asset = assets::lua("print('Hello from Lua!')", "test.lua");
-        assets_.emplace("test", lua_asset);
+        impl_->assets.emplace("test", lua_asset);
 
-        auto &queried = std::get<assets::lua>(assets_.at("test"));
+        auto &queried = std::get<assets::lua>(impl_->assets.at("test"));
 
-        auto comp_handle = lua_components_.create(queried);
-        auto comp = lua_components_.get(comp_handle);
+        auto comp_handle = impl_->lua_components.create(queried);
+        auto comp = impl_->lua_components.get(comp_handle);
     }
 
     engine *engine::get_instance()

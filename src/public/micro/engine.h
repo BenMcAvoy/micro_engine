@@ -1,17 +1,15 @@
 #pragma once
 
-#include "micro/helpers.h"
-
 #include "micro/window.h"
+#include "micro/types.h"
 
-#include "micro/model/asset.h"
+#include <string_view>
 
-#include "micro/model/components/pool.h"
-#include "micro/model/components/lua.h"
-
-namespace sol
+namespace micro::detail
 {
-    class state;
+    // internal access seam — defined in src/private/micro/engine_impl.h.
+    // forward-declared here only to grant friendship; names no implementation types.
+    struct engine_access;
 }
 
 namespace micro
@@ -22,6 +20,9 @@ namespace micro
         engine(std::string_view window_title, vec2 window_size);
         ~engine();
 
+        engine(const engine &) = delete;
+        engine &operator=(const engine &) = delete;
+
         void test();
 
         static engine *get_instance();
@@ -31,18 +32,13 @@ namespace micro
     private:
         window window_;
 
-        helpers::heterogeneous_string_unordered_map<asset> assets_;
-
-        components::pool<components::lua> lua_components_;
-
-        // internal implementation details hidden from the public interface
-        // e.g. sol::state
+        // implementation details
         struct impl;
         impl *impl_;
 
         // global pointer to the engine instance, used for accessing the engine from other parts of the code
         static inline engine *instance_ = nullptr;
 
-        friend class components::lua;
+        friend struct detail::engine_access;
     };
 }

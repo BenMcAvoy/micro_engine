@@ -11,6 +11,7 @@ target("micro_engine")
     set_kind("static")
     add_files("src/private/**.cpp")
     add_includedirs("src/public", {public = true})
+    add_includedirs("src/private")
     add_packages("raylib", "sol2", "nlohmann_json", "json-schema-validator")
 
 target("micro_runtime")
