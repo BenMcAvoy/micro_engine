@@ -7,12 +7,18 @@ add_requires("sol2")
 add_requires("nlohmann_json")
 add_requires("json-schema-validator")
 
+add_moduledirs("xmake")
+
 target("micro_engine")
     set_kind("static")
     add_files("src/private/**.cpp")
     add_includedirs("src/public", {public = true})
     add_includedirs("src/private")
     add_packages("raylib", "sol2", "nlohmann_json", "json-schema-validator")
+
+    before_build(function (_target)
+        import("modules.embed_file").embed_file("res/actor_spec_schema.json")
+    end)
 
 target("micro_runtime")
     set_kind("binary")
