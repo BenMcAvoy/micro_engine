@@ -1,0 +1,12 @@
+.cache
+.vscode
+.xmake
+build
+res
+scripts
+xmake
+.gitignore
+.tokeignore
+*.json
+*.md
+*.lua

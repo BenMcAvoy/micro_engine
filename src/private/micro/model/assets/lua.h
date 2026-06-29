@@ -11,8 +11,6 @@ namespace micro::assets
         lua(std::string_view path);
         lua(std::filesystem::path path);
 
-        lua() = default;
-
         std::string source;
         std::string path;
     };

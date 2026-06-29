@@ -12,7 +12,7 @@ add_requires("sol2")
 add_requires("nlohmann_json")
 add_requires("json-schema-validator")
 add_requires("spdlog")
-add_requires("flecs")
+add_requires("flecs", {debug = is_mode("debug")})
 
 add_moduledirs("xmake")
 

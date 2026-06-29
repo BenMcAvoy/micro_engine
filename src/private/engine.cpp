@@ -2,7 +2,9 @@
 #include "micro/engine_impl.h"
 
 #include "micro/model/assets/actor.h"
-#include "micro/model/actor.h"
+#include "micro/model/components/lua.h"
+
+#include "micro/systems.h"
 
 #include "micro/log.h"
 
@@ -10,7 +12,16 @@ namespace micro
 {
     void engine::run()
     {
-        window_.run();
+        while (!window_.should_close())
+        {
+            window_.begin_drawing();
+            window_.clear_background(colour(1.0f, 1.0f, 1.0f, 1.0f));
+
+            impl_->ecs_world.progress();
+            window_.draw_fps(10, 10);
+
+            window_.end_drawing();
+        }
     }
 
     engine::engine(std::string_view window_title, vec2 window_size)
@@ -18,16 +29,23 @@ namespace micro
     {
         log::info("initializing engine...");
 
+        auto &world = impl_->ecs_world;
+
+        world.import<flecs::stats>();
+        world.set<flecs::Rest>({});
+
+        systems::register_all(world);
+
         auto &lua = impl_->sol_state;
 
         lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
         lua["print"] = [](const std::string &str)
         {
-            log::info("\033[33mlua\033[0m {}", str);
+            log::info_cat("game", "{}", str);
         };
 
         lua.script(R"(
-            print("lua state initialized successfully.")
+            print("hello from lua")
         )");
 
         engine::instance_ = this;
@@ -57,7 +75,7 @@ namespace micro
         }
         catch (const std::exception &e)
         {
-            log::error("Error loading actor asset: {}", e.what());
+            log::error("error loading actor asset: {}", e.what());
         }
     }
 
@@ -68,15 +86,25 @@ namespace micro
         assets::actor actor_asset(spec_path);
         impl_->assets.emplace(actor_asset.name, actor_asset);
 
-        // TODO: create actor instance
-        model::actor actor_instance(actor_asset);
-        // log::debug("actor instance created @ {:p}", static_cast<void *>(&actor_instance));
+        auto entity = impl_->ecs_world.entity(actor_asset.name.c_str());
 
-        // TODO: real actor storage
-        static std::vector<model::actor> actor_instances;
-        actor_instances.emplace_back(std::move(actor_instance));
-
-        log::debug("actor spawned successfully @ {:p}", static_cast<void *>(&actor_instances.back()));
+        for (auto &&component_variant : actor_asset.components)
+        {
+            std::visit([&](auto &&component)
+                       {
+                using T = std::decay_t<decltype(component)>;
+                log::debug("adding component to actor entity: {}", typeid(component).name());
+                if constexpr (std::is_same_v<T, assets::components::lua>)
+                {
+                    assets::lua lua_asset{component.path};
+                    entity.emplace<components::lua>(lua_asset, entity);
+                }
+                else
+                {
+                    entity.set<T>(component);
+                } },
+                       component_variant);
+        }
     }
 
     engine &engine::get_instance()

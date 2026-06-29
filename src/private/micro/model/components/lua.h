@@ -6,6 +6,7 @@
 #include "micro/helpers.h"
 
 #include <sol/sol.hpp>
+#include <flecs.h>
 
 #include <string_view>
 
@@ -14,15 +15,15 @@ namespace micro::components
     class lua
     {
     public:
-        lua(assets::lua &asset_);
-        lua(std::string_view lua_asset_name);
+        lua(assets::lua &asset_, flecs::entity entity);
+        lua(std::string_view lua_asset_name, flecs::entity entity);
 
     private:
-        // asset source for script
-        assets::lua &asset_;
+        sol::function load_func_;
+        sol::function update_func_;
+        sol::function draw_func_;
 
-        // table handle for script state
-        sol::table table_;
+        flecs::entity entity_; // the entity that this component is attached to
 
         // helper to get sol::state from engine instance
         sol::state &engine_lua_state() const;

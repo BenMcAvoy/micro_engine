@@ -1,6 +1,7 @@
 #pragma once
 
 #include "micro/types.h"
+#include "micro/model/assets/lua.h"
 
 #include <string>
 #include <vector>
@@ -20,6 +21,8 @@ namespace micro::assets
 
         struct lua
         {
+            lua(assets::lua &asset_);
+
             std::filesystem::path path;
         };
     };

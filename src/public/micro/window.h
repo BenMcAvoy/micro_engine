@@ -10,13 +10,15 @@ namespace micro
         window(std::string_view title, vec2 size);
         ~window();
 
-        void set_target_fps(int fps);
-        bool should_close();
-        void begin_drawing();
-        void clear_background(colour color);
-        void end_drawing();
-        void close();
-        void run();
+        static void set_target_fps(int fps);
+        static bool should_close();
+        static void begin_drawing();
+        static void clear_background(colour color);
+        static void draw_rectangle(int x, int y, int width, int height, colour color);
+        static void draw_fps(int pos_x, int pos_y);
+        static void end_drawing();
+        static void close();
+        static void run();
 
     private:
         int width;

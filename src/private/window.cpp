@@ -12,6 +12,9 @@ namespace micro
     {
         log::set_format();
         log::connect_raylib();
+        log::connect_flecs();
+
+        log::info("initializing window: {} ({}x{})", title, width, height);
 
         InitWindow(width, height, title.data());
     }
@@ -41,6 +44,16 @@ namespace micro
         ClearBackground(color.to_raylib());
     }
 
+    void window::draw_fps(int pos_x, int pos_y)
+    {
+        DrawFPS(pos_x, pos_y);
+    }
+
+    void window::draw_rectangle(int x, int y, int width, int height, colour color)
+    {
+        DrawRectangle(x, y, width, height, color.to_raylib());
+    }
+
     void window::end_drawing()
     {
         EndDrawing();
@@ -57,6 +70,7 @@ namespace micro
         {
             begin_drawing();
             clear_background(colour(1.0f, 1.0f, 1.0f, 1.0f));
+            draw_fps(10, 10);
             end_drawing();
         }
     }

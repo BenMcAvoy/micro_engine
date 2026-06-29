@@ -4,7 +4,6 @@
 
 #include "micro/helpers.h"
 #include "micro/model/asset.h"
-#include "micro/model/components/pool.h"
 
 #include "micro/model/components/lua.h"
 #include "micro/model/components/texture.h"
