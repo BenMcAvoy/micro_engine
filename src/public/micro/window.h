@@ -16,6 +16,7 @@ namespace micro
         static void clear_background(colour color);
         static void draw_rectangle(int x, int y, int width, int height, colour color);
         static void draw_fps(int pos_x, int pos_y);
+        static float get_frame_time();
         static void end_drawing();
         static void close();
         static void run();

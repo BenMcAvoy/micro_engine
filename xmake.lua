@@ -29,5 +29,6 @@ target("micro_engine")
 
 target("micro_runtime")
     set_kind("binary")
+    set_rundir("$(projectdir)")
     add_files("src/*.cpp")
     add_deps("micro_engine")

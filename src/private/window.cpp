@@ -6,7 +6,6 @@
 
 namespace micro
 {
-
     window::window(std::string_view title, vec2 size)
         : width(size.x), height(size.y), title(title)
     {
@@ -52,6 +51,11 @@ namespace micro
     void window::draw_rectangle(int x, int y, int width, int height, colour color)
     {
         DrawRectangle(x, y, width, height, color.to_raylib());
+    }
+
+    float window::get_frame_time()
+    {
+        return GetFrameTime();
     }
 
     void window::end_drawing()

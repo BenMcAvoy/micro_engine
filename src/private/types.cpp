@@ -16,6 +16,11 @@ namespace micro
         return {v.x, v.y};
     }
 
+    std::array<float, 2> vec2::to_array() const
+    {
+        return {x, y};
+    }
+
     std::string vec2::to_string() const
     {
         return std::format("vec2({}, {})", x, y);
@@ -29,6 +34,11 @@ namespace micro
     vec3 vec3::from_raylib(const Vector3 &v)
     {
         return {v.x, v.y, v.z};
+    }
+
+    std::array<float, 3> vec3::to_array() const
+    {
+        return {x, y, z};
     }
 
     std::string vec3::to_string() const

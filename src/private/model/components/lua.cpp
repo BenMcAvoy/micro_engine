@@ -1,4 +1,4 @@
-#include "micro/model/assets/actor.h"
+#include "micro/model/components/transform.h"
 #include "micro/model/components/lua.h"
 #include "micro/engine_impl.h"
 #include "micro/log.h"
@@ -11,27 +11,28 @@ namespace micro::components
         log::debug("initializing lua component with asset: {}", asset_.path);
 
         sol::state &state = engine_lua_state();
-        state.new_usertype<lua>("lua",
+        /*state.new_usertype<lua>("lua",
                                 sol::no_constructor,
                                 sol::meta_function::index,
-                                [](lua &self, const std::string &key)
+                                [](lua &self, const std::string &key, sol::this_state ts) -> sol::object
                                 {
+                                    sol::state_view sv(ts);
+
                                     // get component from entity
                                     if (key == "transform")
                                     {
-                                        return self.entity_.get<assets::components::transform>();
+                                        return sol::make_object(sv, &self.entity_.get_mut<components::transform>());
                                     }
                                     else if (key == "lua")
                                     {
-                                        // return self.entity_.get<assets::components::lua>();
-                                        throw std::runtime_error("Accessing 'lua' component from Lua is not supported.");
+                                        return sol::make_object(sv, &self.entity_.get_mut<components::lua>());
                                     }
                                     else
                                     {
                                         log::error("unknown component key: {}", key);
                                         throw std::runtime_error("unknown component key: " + key);
                                     }
-                                });
+                                });*/
 
         sol::table table = state.create_table();
 
@@ -61,6 +62,10 @@ namespace micro::components
             log::error("lua script {} does not have a valid 'draw' function", asset_.path);
         }
 
+        load_func_ = load_func;
+        update_func_ = update_func;
+        draw_func_ = draw_func;
+
         log::debug("lua load {}, update {}, draw {}. functions loaded from {}", load_func.valid() ? "valid" : "invalid", update_func.valid() ? "valid" : "invalid", draw_func.valid() ? "valid" : "invalid", asset_.path);
 
         // call the load function to initialize the script
@@ -75,6 +80,19 @@ namespace micro::components
     lua::lua(std::string_view lua_asset_name, flecs::entity entity)
         : lua(get_asset_by_name(lua_asset_name), entity)
     {
+    }
+
+    void lua::update()
+    {
+        if (update_func_.valid())
+        {
+            sol::protected_function_result update_result = update_func_(this, window::get_frame_time());
+            if (!update_result.valid())
+            {
+                sol::error err = update_result;
+                log::error("error calling 'update' function in lua script: {}", err.what());
+            }
+        }
     }
 
     sol::state &lua::engine_lua_state() const

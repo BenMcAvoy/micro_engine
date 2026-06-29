@@ -5,6 +5,7 @@
 #include "micro/model/components/lua.h"
 
 #include "micro/systems.h"
+#include "micro/bindings.h"
 
 #include "micro/log.h"
 
@@ -44,9 +45,7 @@ namespace micro
             log::info_cat("game", "{}", str);
         };
 
-        lua.script(R"(
-            print("hello from lua")
-        )");
+        bindings::init(lua, world);
 
         engine::instance_ = this;
     }
@@ -88,22 +87,17 @@ namespace micro
 
         auto entity = impl_->ecs_world.entity(actor_asset.name.c_str());
 
-        for (auto &&component_variant : actor_asset.components)
+        if (actor_asset.transform)
         {
-            std::visit([&](auto &&component)
-                       {
-                using T = std::decay_t<decltype(component)>;
-                log::debug("adding component to actor entity: {}", typeid(component).name());
-                if constexpr (std::is_same_v<T, assets::components::lua>)
-                {
-                    assets::lua lua_asset{component.path};
-                    entity.emplace<components::lua>(lua_asset, entity);
-                }
-                else
-                {
-                    entity.set<T>(component);
-                } },
-                       component_variant);
+            log::debug("adding transform component to actor entity");
+            entity.set<components::transform>(*actor_asset.transform);
+        }
+
+        if (actor_asset.script)
+        {
+            log::debug("adding lua component to actor entity: {}", actor_asset.script->string());
+            assets::lua lua_asset{*actor_asset.script};
+            entity.emplace<components::lua>(lua_asset, entity);
         }
     }
 

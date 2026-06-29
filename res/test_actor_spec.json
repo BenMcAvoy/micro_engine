@@ -17,7 +17,7 @@
     },
 
     "script": {
-      "path": "scripts/actor.lua"
+      "path": "res/actor.lua"
     }
   }
 }
